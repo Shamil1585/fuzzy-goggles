@@ -1,0 +1,61 @@
+#include <iostream>
+#include <queue>
+#include <climits>
+
+using namespace std;
+
+void processQueue(queue<int>& q) {
+    if (q.empty()) return;
+
+    int max_val = INT_MIN;
+    int last_odd = -1;
+    queue<int> temp_q = q;
+
+    // Находим максимальное значение и последний нечетный элемент
+    while (!temp_q.empty()) {
+        int val = temp_q.front();
+        temp_q.pop();
+        if (val > max_val) {
+            max_val = val;
+        }
+        if (val % 2 != 0) {
+            last_odd = val;
+        }
+    }
+
+    // Если нет нечетных элементов, ничего не делаем
+    if (last_odd == -1) return;
+
+    // Обрабатываем очередь, вставляя last_odd после каждого max_val
+    queue<int> result;
+    while (!q.empty()) {
+        int val = q.front();
+        q.pop();
+        result.push(val);
+        if (val == max_val) {
+            result.push(last_odd);
+        }
+    }
+
+    q = result;
+}
+
+int main() {
+    queue<int> q;
+    // Пример входных данных
+    int arr[] = {2, 8, 2, 1, 6, 8, 8, 1, 2, 2, 8, 2, 1};
+    for (int num : arr) {
+        q.push(num);
+    }
+
+    processQueue(q);
+
+    // Вывод результата
+    while (!q.empty()) {
+        cout << q.front() << " ";
+        q.pop();
+    }
+    cout << endl;
+
+    return 0;
+}

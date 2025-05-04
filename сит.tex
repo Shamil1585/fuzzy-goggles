@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsmath}
+\usepackage{amsymb}
+\usepackage{amsfonts}
+\usepackage{mathrsfs}
+\usepackage[12pt]{extsizes}
+\usepackage{fancyvrb}
+\usepackage{indentfirst}
+\usepackage[
+left=2cm, right=2cm, top=2cm, bottom=2cm, headsep=0.2cm, footskip=0.6cm, bindingoffset=0cm
+]{geometry}
+\usepackage[english,russian]{babel}
+
+
+\begin{document}
+\section*{Вариант 30}
+
+Обозначим через \( \pi = (\pi_n), \, n \in B \), стационарное распределение вероятностей состояний процесса \( \Xi \) (сети \( N \)), а \( \hat{\pi} = (\hat{\pi}_n) \) и \( \tilde{\pi} = (\tilde{\pi}_n) \) — стационарные распределения вероятностей состояний цепей \( \tilde{C} \) и \( \tilde{C} \) соответственно. В стационарном режиме процесса \( \Xi \) вероятности начала и окончания тактов в состоянии \( s^{(n)} \in X \) равны вероятности \( \pi_n \), а вероятности окончания реализаций цепей \( \tilde{C} \) и \( \tilde{C} \) в состоянии \( n \in B \) равны вероятностям \( \hat{\pi}_n \) и \( \tilde{\pi}_n \). Поэтому, для \( n \in B \),
+
+\[
+\hat{\pi}_n = \sum_{m=1}^{c_Y} \pi_m p_{m,n}^{(\varphi)},
+\]
+
+\[
+\tilde{\pi}_n = \sum_{m=c_Y+1}^{c_X} \pi_m p_{m,n}^{(\varphi)}, \tag{1}
+\]
+
+\[
+\pi_n = \sum_{m=1}^{c_Y} \pi_m p_{m,n}^{(\varphi)} + \sum_{m=c_Y+1}^{c_X} \pi_m p_{m,n}^{(\varphi)}.
+\]
+
+Из конечности множества \( X \) непосредственно следуют существование и единственность распределения \( \pi \). Таким образом, при заданном значении \( \varphi \) стационарное распределение \( \pi \) вероятностей состояний сети \( N \) существует, является единственным и удовлетворяет системе уравнений (1) с условием \( \sum_{n \in B} \pi_n = 1 \).
+
+\end{document}

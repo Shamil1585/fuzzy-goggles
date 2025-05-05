@@ -1,0 +1,65 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Функция для добавления ребра в неориентированный граф
+void addEdge(vector<vector<int>>& graph, int a, int b) {
+    // Проверяем, что вершины существуют в графе
+    if (a < 0 || a >= graph.size() || b < 0 || b >= graph.size()) {
+        cout << "Ошибка: одна из вершин не существует в графе!" << endl;
+        return;
+    }
+    
+    // Проверяем, что ребро еще не существует
+    for (int neighbor : graph[a]) {
+        if (neighbor == b) {
+            cout << "Ребро уже существует!" << endl;
+            return;
+        }
+    }
+    
+    // Добавляем ребро в обе стороны (граф неориентированный)
+    graph[a].push_back(b);
+    graph[b].push_back(a);
+    
+    cout << "Ребро между " << a << " и " << b << " успешно добавлено." << endl;
+}
+
+int main() {
+    int vertices;
+    cout << "Введите количество вершин в графе: ";
+    cin >> vertices;
+
+    // Создаем список смежности
+    vector<vector<int>> graph(vertices);
+
+    int edges;
+    cout << "Введите количество ребер для добавления: ";
+    cin >> edges;
+
+    // Добавляем существующие ребра
+    cout << "Введите существующие ребра (пары вершин):" << endl;
+    for (int i = 0; i < edges; ++i) {
+        int u, v;
+        cin >> u >> v;
+        addEdge(graph, u, v);
+    }
+
+    // Добавляем новое ребро
+    int a, b;
+    cout << "Введите вершины A и B для нового ребра: ";
+    cin >> a >> b;
+    addEdge(graph, a, b);
+
+    // Выводим список смежности для проверки
+    cout << "\nОбновленный список смежности:" << endl;
+    for (int i = 0; i < graph.size(); ++i) {
+        cout << "Вершина " << i << ": ";
+        for (int neighbor : graph[i]) {
+            cout << neighbor << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}

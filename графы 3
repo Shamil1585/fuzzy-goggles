@@ -1,0 +1,33 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    int vertices, edges;
+    cout << "Введите количество вершин и ребер графа: ";
+    cin >> vertices >> edges;
+
+    // Создаем список смежности для ориентированного графа
+    vector<vector<int>> adjacencyList(vertices);
+
+    cout << "Введите направленные ребра (начало конец):" << endl;
+    for (int i = 0; i < edges; ++i) {
+        int from, to;
+        cin >> from >> to;
+        adjacencyList[from].push_back(to);
+    }
+
+    // Подсчитываем полустепени исхода
+    vector<int> outDegrees(vertices, 0);
+    for (int i = 0; i < vertices; ++i) {
+        outDegrees[i] = adjacencyList[i].size();
+    }
+
+    // Выводим результаты
+    cout << "\nПолустепени исхода вершин:" << endl;
+    for (int i = 0; i < vertices; ++i) {
+        cout << "Вершина " << i << ": " << outDegrees[i] << endl;
+    }
+
+    return 0;
+}

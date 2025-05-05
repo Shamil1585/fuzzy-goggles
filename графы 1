@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Функция для подсчета смежных вершин
+int countAdjacentVertices(const vector<vector<int>>& graph, int vertex) {
+    // Проверяем, что вершина существует в графе
+    if (vertex < 0 || vertex >= graph.size()) {
+        return -1; // Некорректная вершина
+    }
+    
+    // Количество смежных вершин равно размеру списка смежности для данной вершины
+    return graph[vertex].size();
+}
+
+int main() {
+    int vertices, edges;
+    cout << "Введите количество вершин и ребер: ";
+    cin >> vertices >> edges;
+
+    // Создаем список смежности
+    vector<vector<int>> graph(vertices);
+
+    cout << "Введите ребра (пары вершин):" << endl;
+    for (int i = 0; i < edges; ++i) {
+        int u, v;
+        cin >> u >> v;
+        
+        // Добавляем в список смежности для обеих вершин (граф неориентированный)
+        graph[u].push_back(v);
+        graph[v].push_back(u);
+    }
+
+    int targetVertex;
+    cout << "Введите вершину, для которой нужно найти количество смежных: ";
+    cin >> targetVertex;
+
+    int count = countAdjacentVertices(graph, targetVertex);
+    
+    if (count == -1) {
+        cout << "Ошибка: такой вершины нет в графе!" << endl;
+    } else {
+        cout << "Количество вершин, смежных с вершиной " << targetVertex 
+             << ": " << count << endl;
+    }
+
+    return 0;
+}

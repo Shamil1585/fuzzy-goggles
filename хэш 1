@@ -1,0 +1,272 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <iomanip>
+
+using namespace std;
+
+// Структура для хранения данных о сотруднике
+struct Employee {
+    string surname;
+    string position;
+    int birth_day;
+    int birth_month;
+    int birth_year;
+    int experience;
+    double salary;
+    
+    // Конструктор для удобного создания объектов
+    Employee(string s, string p, int d, int m, int y, int e, double sal) 
+        : surname(s), position(p), birth_day(d), birth_month(m), birth_year(y), experience(e), salary(sal) {}
+};
+
+// Узел двусвязного списка
+struct Node {
+    Employee data;
+    Node* prev;
+    Node* next;
+    
+    Node(Employee emp) : data(emp), prev(nullptr), next(nullptr) {}
+};
+
+// Двусвязный список для метода цепочек
+class DoublyLinkedList {
+private:
+    Node* head;
+    Node* tail;
+    
+public:
+    DoublyLinkedList() : head(nullptr), tail(nullptr) {}
+    
+    ~DoublyLinkedList() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+    
+    // Добавление элемента в конец списка
+    void append(Employee emp) {
+        Node* newNode = new Node(emp);
+        if (head == nullptr) {
+            head = tail = newNode;
+        } else {
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
+        }
+    }
+    
+    // Поиск сотрудников по стажу
+    vector<Employee> search(int exp) {
+        vector<Employee> result;
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->data.experience == exp) {
+                result.push_back(current->data);
+            }
+            current = current->next;
+        }
+        return result;
+    }
+    
+    // Удаление всех сотрудников с заданным стажем
+    void remove(int exp) {
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->data.experience == exp) {
+                // Удаляем узел
+                if (current->prev != nullptr) {
+                    current->prev->next = current->next;
+                } else {
+                    head = current->next;
+                }
+                
+                if (current->next != nullptr) {
+                    current->next->prev = current->prev;
+                } else {
+                    tail = current->prev;
+                }
+                
+                Node* toDelete = current;
+                current = current->next;
+                delete toDelete;
+            } else {
+                current = current->next;
+            }
+        }
+    }
+    
+    // Проверка на пустоту
+    bool isEmpty() const {
+        return head == nullptr;
+    }
+    
+    // Вывод списка
+    void print() const {
+        Node* current = head;
+        while (current != nullptr) {
+            cout << current->data.surname << " (стаж: " << current->data.experience << " лет) -> ";
+            current = current->next;
+        }
+        cout << "NULL" << endl;
+    }
+};
+
+// Хеш-таблица с открытым хешированием
+class HashTable {
+private:
+    static const int TABLE_SIZE = 10; // Размер хеш-таблицы
+    vector<DoublyLinkedList> table;
+    
+    // Хеш-функция: метод деления по стажу
+    int hashFunction(int experience) {
+        return experience % TABLE_SIZE;
+    }
+    
+public:
+    HashTable() : table(TABLE_SIZE) {}
+    
+    // Добавление сотрудника в таблицу
+    void insert(const Employee& emp) {
+        int index = hashFunction(emp.experience);
+        table[index].append(emp);
+    }
+    
+    // Поиск сотрудников по стажу
+    vector<Employee> search(int experience) {
+        int index = hashFunction(experience);
+        return table[index].search(experience);
+    }
+    
+    // Удаление всех сотрудников с заданным стажем
+    void remove(int experience) {
+        int index = hashFunction(experience);
+        table[index].remove(experience);
+    }
+    
+    // Вывод хеш-таблицы
+    void print() {
+        for (int i = 0; i < TABLE_SIZE; ++i) {
+            cout << "Индекс " << i << ": ";
+            if (table[i].isEmpty()) {
+                cout << "пусто" << endl;
+            } else {
+                table[i].print();
+            }
+        }
+    }
+};
+
+// Функция для чтения данных из файла
+vector<Employee> readEmployeesFromFile(const string& filename) {
+    vector<Employee> employees;
+    ifstream file(filename);
+    
+    if (!file.is_open()) {
+        cerr << "Не удалось открыть файл " << filename << endl;
+        return employees;
+    }
+    
+    string surname, position;
+    int day, month, year, exp;
+    double salary;
+    
+    while (file >> surname >> position >> day >> month >> year >> exp >> salary) {
+        employees.emplace_back(surname, position, day, month, year, exp, salary);
+    }
+    
+    file.close();
+    return employees;
+}
+
+// Функция для вывода информации о сотруднике
+void printEmployee(const Employee& emp) {
+    cout << "Фамилия: " << emp.surname << endl;
+    cout << "Должность: " << emp.position << endl;
+    cout << "Дата рождения: " << setw(2) << setfill('0') << emp.birth_day << "." 
+         << setw(2) << setfill('0') << emp.birth_month << "." << emp.birth_year << endl;
+    cout << "Стаж работы: " << emp.experience << " лет" << endl;
+    cout << "Зарплата: " << fixed << setprecision(2) << emp.salary << " руб." << endl;
+    cout << "---------------------------------" << endl;
+}
+
+int main() {
+    // Чтение данных из файла
+    vector<Employee> employees = readEmployeesFromFile("employees.txt");
+    if (employees.empty()) {
+        cout << "Файл пуст или не найден. Будет использован тестовый набор данных." << endl;
+        
+        // Тестовые данные
+        employees = {
+            {"Иванов", "Менеджер", 15, 5, 1980, 10, 50000.50},
+            {"Петров", "Инженер", 20, 8, 1975, 15, 65000.75},
+            {"Сидоров", "Программист", 10, 3, 1990, 5, 80000.00},
+            {"Кузнецов", "Аналитик", 25, 11, 1985, 8, 75000.25},
+            {"Смирнов", "Директор", 1, 1, 1970, 20, 100000.00},
+            {"Васильев", "Бухгалтер", 12, 7, 1982, 12, 60000.50},
+            {"Попов", "Тестировщик", 5, 9, 1995, 3, 45000.00},
+            {"Новиков", "Дизайнер", 18, 4, 1988, 7, 55000.75},
+            {"Федоров", "Разработчик", 30, 12, 1983, 10, 85000.00},
+            {"Морозов", "Администратор", 8, 2, 1992, 4, 48000.50},
+            {"Волков", "Маркетолог", 22, 6, 1987, 9, 70000.25},
+            {"Лебедев", "Аналитик", 14, 10, 1981, 11, 72000.00},
+            {"Козлов", "Программист", 3, 3, 1993, 2, 50000.00},
+            {"Егоров", "Инженер", 27, 7, 1978, 16, 68000.50},
+            {"Павлов", "Менеджер", 9, 11, 1989, 6, 58000.75},
+            {"Семенов", "Тестировщик", 16, 5, 1984, 10, 60000.00},
+            {"Голубев", "Разработчик", 4, 8, 1991, 3, 52000.25},
+            {"Виноградов", "Бухгалтер", 19, 9, 1986, 13, 63000.50},
+            {"Богданов", "Дизайнер", 11, 12, 1994, 5, 55000.00},
+            {"Воробьев", "Администратор", 6, 2, 1996, 1, 40000.75}
+        };
+    }
+    
+    // Создание и заполнение хеш-таблицы
+    HashTable hashTable;
+    for (const auto& emp : employees) {
+        hashTable.insert(emp);
+    }
+    
+    cout << "Хеш-таблица после заполнения:" << endl;
+    hashTable.print();
+    cout << endl;
+    
+    // Демонстрация поиска
+    int searchExp;
+    cout << "Введите стаж для поиска сотрудников: ";
+    cin >> searchExp;
+    
+    vector<Employee> foundEmployees = hashTable.search(searchExp);
+    if (foundEmployees.empty()) {
+        cout << "Сотрудники со стажем " << searchExp << " лет не найдены." << endl;
+    } else {
+        cout << "Найдены следующие сотрудники со стажем " << searchExp << " лет:" << endl;
+        for (const auto& emp : foundEmployees) {
+            printEmployee(emp);
+        }
+    }
+    cout << endl;
+    
+    // Демонстрация удаления
+    int removeExp;
+    cout << "Введите стаж для удаления сотрудников: ";
+    cin >> removeExp;
+    
+    hashTable.remove(removeExp);
+    cout << "Хеш-таблица после удаления сотрудников со стажем " << removeExp << " лет:" << endl;
+    hashTable.print();
+    cout << endl;
+    
+    // Проверка, что сотрудники действительно удалены
+    foundEmployees = hashTable.search(removeExp);
+    if (foundEmployees.empty()) {
+        cout << "Сотрудники со стажем " << removeExp << " лет успешно удалены." << endl;
+    } else {
+        cout << "Ошибка: сотрудники со стажем " << removeExp << " лет все еще присутствуют в таблице." << endl;
+    }
+    
+    return 0;
+}

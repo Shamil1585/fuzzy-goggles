@@ -1,0 +1,135 @@
+#include <iostream>
+#include <stack>
+#include <string>
+#include <cctype>
+using namespace std;
+
+// Узел дерева выражения
+struct Node {
+    string data;
+    Node* left;
+    Node* right;
+    
+    Node(string val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+// Функция для проверки, является ли символ оператором
+bool isOperator(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+}
+
+// Функция для построения дерева выражения из инфиксной записи
+Node* buildExpressionTree(const string& infix) {
+    stack<Node*> nodes;
+    stack<char> ops;
+    
+    for (size_t i = 0; i < infix.size(); ++i) {
+        if (infix[i] == ' ') continue;
+        
+        if (infix[i] == '(') {
+            ops.push(infix[i]);
+        }
+        else if (isdigit(infix[i]) || isalpha(infix[i])) {
+            string num;
+            while (i < infix.size() && (isdigit(infix[i]) || isalpha(infix[i]))) {
+                num += infix[i++];
+            }
+            --i;
+            nodes.push(new Node(num));
+        }
+        else if (infix[i] == ')') {
+            while (!ops.empty() && ops.top() != '(') {
+                Node* opNode = new Node(string(1, ops.top()));
+                ops.pop();
+                
+                Node* right = nodes.top(); nodes.pop();
+                Node* left = nodes.top(); nodes.pop();
+                
+                opNode->left = left;
+                opNode->right = right;
+                
+                nodes.push(opNode);
+            }
+            ops.pop(); // Удаляем '('
+        }
+        else if (isOperator(infix[i])) {
+            while (!ops.empty() && ops.top() != '(' && 
+                  ((infix[i] != '^' && (ops.top() == '^' || 
+                   (infix[i] == '*' || infix[i] == '/') && (ops.top() == '+' || ops.top() == '-'))))) {
+                Node* opNode = new Node(string(1, ops.top()));
+                ops.pop();
+                
+                Node* right = nodes.top(); nodes.pop();
+                Node* left = nodes.top(); nodes.pop();
+                
+                opNode->left = left;
+                opNode->right = right;
+                
+                nodes.push(opNode);
+            }
+            ops.push(infix[i]);
+        }
+    }
+    
+    while (!ops.empty()) {
+        Node* opNode = new Node(string(1, ops.top()));
+        ops.pop();
+        
+        Node* right = nodes.top(); nodes.pop();
+        Node* left = nodes.top(); nodes.pop();
+        
+        opNode->left = left;
+        opNode->right = right;
+        
+        nodes.push(opNode);
+    }
+    
+    return nodes.empty() ? nullptr : nodes.top();
+}
+
+// Префиксный обход (Прямой порядок)
+void prefixTraversal(Node* root) {
+    if (root) {
+        cout << root->data << " ";
+        prefixTraversal(root->left);
+        prefixTraversal(root->right);
+    }
+}
+
+// Постфиксный обход (Обратный порядок)
+void postfixTraversal(Node* root) {
+    if (root) {
+        postfixTraversal(root->left);
+        postfixTraversal(root->right);
+        cout << root->data << " ";
+    }
+}
+
+// Удаление дерева (очистка памяти)
+void deleteTree(Node* root) {
+    if (root) {
+        deleteTree(root->left);
+        deleteTree(root->right);
+        delete root;
+    }
+}
+
+int main() {
+    string expression;
+    cout << "Введите математическое выражение (например, (a+b)*(c-d)): ";
+    getline(cin, expression);
+    
+    Node* root = buildExpressionTree(expression);
+    
+    cout << "Префиксная запись (прямой обход): ";
+    prefixTraversal(root);
+    cout << endl;
+    
+    cout << "Постфиксная запись (обратный обход): ";
+    postfixTraversal(root);
+    cout << endl;
+    
+    deleteTree(root);
+    
+    return 0;
+}
